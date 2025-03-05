@@ -1,0 +1,40 @@
+- name: Kube-Vip Cloud Provider | Create addon dir
+  file:
+    path: "{{ kube_config_dir }}/addons/kube-cloud-provider"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  when:
+    - inventory_hostname == groups['kube_control_plane'][0]
+
+- name: Kube-Vip Cloud Provider | Templates list
+  set_fact:
+    kube_cloud_provider_templates:
+      - { name: kubevip-cp-configmap, file: kubevip-cm.yml, type: configmap }
+      - { name: kubevip-cp-sa, file: kubevip_cp_sa.yml, type: sa }
+      - { name: kubevip-cp-clusterrole, file: kubevip_cp_clusterrole.yml, type: clusterrole }
+      - { name: kubevip-cp-clusterrolebinding, file: kubevip_cp_clusterrolebinding.yml, type: clusterrolebinding }
+      - { name: kubevip-cp-deployment, file: kubevip_cp_deployment.yml, type: deploy }
+
+- name: Kube-Vip Cloud Provider | Create manifests
+  template:
+    src: "{{ item.file }}.j2"
+    dest: "{{ kube_config_dir }}/addons/kube-cloud-provider/{{ item.file }}"
+    mode: 0644
+  with_items: "{{ kube_cloud_provider_templates }}"
+  register: kube_cloud_provider_manifests
+  when:
+    - inventory_hostname == groups['kube_control_plane'][0]
+
+
+- name: Kube-Vip Cloud Provider | Apply manifests
+  kube:
+    name: "{{ item.item.name }}"
+    kubectl: "{{ bin_dir }}/kubectl"
+    resource: "{{ item.item.type }}"
+    filename: "{{ kube_config_dir }}/addons/kube-cloud-provider/{{ item.item.file }}"
+    state: "latest"
+  with_items: "{{ kube_cloud_provider_manifests.results }}"
+  when:
+    - inventory_hostname == groups['kube_control_plane'][0]
