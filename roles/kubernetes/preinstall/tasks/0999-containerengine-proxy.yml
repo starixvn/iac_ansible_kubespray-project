@@ -1,4 +1,14 @@
 ---
+- name: Containerd | Ensure containerd directories exist
+  file:
+    dest: "{{ item }}"
+    state: directory
+    mode: "0755"
+    owner: root
+    group: root
+  with_items:
+    - "{{ containerd_systemd_dir }}"
+
 - name: Containerd | Write containerd proxy drop-in
   template:
     src: http-proxy.conf.j2
