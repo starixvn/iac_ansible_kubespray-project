@@ -39,6 +39,7 @@
   when: ansible_os_family == "Debian"
   tags:
     - bootstrap-os
+    - download
 
 - name: Remove legacy docker repo file
   file:
