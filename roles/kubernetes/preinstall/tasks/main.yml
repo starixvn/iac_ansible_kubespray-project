@@ -129,3 +129,8 @@
   when:
     - kube_network_plugin == 'calico'
     - not ignore_assert_errors
+
+- name: Set container-engine proxy
+  import_tasks: 0999-containerengine-proxy.yml
+  when:
+    - http_proxy is defined or https_proxy is defined
