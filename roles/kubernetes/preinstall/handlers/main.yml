@@ -132,3 +132,13 @@
     name: "{{ ntp_service_name }}"
     state: restarted
   when: ntp_enabled
+
+
+- name: Containerd | restart containerd
+  systemd_service:
+    name: containerd
+    state: restarted
+    enabled: true
+    daemon-reload: true
+    masked: false
+  listen: Restart containerd
