@@ -1,4 +1,11 @@
 ---
+- name: Helm | DEBUG
+  debug:
+    msg:
+      - "Run tags: {{ ansible_run_tags }}"
+      - "Skip tags: {{ ansible_skip_tags }}"
+      - "{{ helm_enabled }}"
+
 - name: Helm | Gather os specific variables
   include_vars: "{{ item }}"
   with_first_found:
